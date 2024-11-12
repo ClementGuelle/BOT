@@ -13,7 +13,6 @@ module.exports = {
 			interaction.reply({ content: "Commandement désuet" });
 		}
 
-		console.log(`${interaction.commandName} est exécuté `)
 		command.execute(interaction, client);
 	},
 };
