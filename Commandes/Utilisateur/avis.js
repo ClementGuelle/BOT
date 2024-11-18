@@ -313,7 +313,6 @@ module.exports =
 		.setDescription('Donne ton avis sur la partie'),
 
 
-
 	async execute(interaction, client)
 	{
 		const idUtilisateur = interaction.user.id
@@ -388,9 +387,36 @@ module.exports =
 		if (!(await lectureReponse(interaction, donneeRecolte, 'avis_ambiance')))
 		{
 			envoieMessageErreur(client, 'Temps limite pour une réponse atteint.', idUtilisateur)
-			return 
+			return
 		}
 
+
+		// Commentaire de l'utilisateur supplémentaire
+
+		// Création modal
+		const modal = new ModalBuilder()
+			.setCustomId('commentModal')
+			.setTitle('Laissez votre commentaire');
+
+		// Création zone texte
+		const commentaire = new TextInputBuilder()
+			.setCustomId('commentaire')
+			.setLabel("Votre commentaire (max 500 caractères)")
+			.setStyle(TextInputStyle.Paragraph)
+			.setMaxLength(500)
+			.setPlaceholder('Entrez votre commentaire ici...')
+			.setRequired(true);
+
+		// Ajout de la zone de texte au modal
+		const action = new ActionRowBuilder().addComponents(commentaire);
+		modal.addComponents(action);
+
+		await interaction.showModal(modal);
+
+		if (interaction.isModalSubmit() && interaction.customId === 'commentModal') 
+		{
+			await interaction.followUp(`Merci pour votre commentaire :\n"${interaction.fields.getTextInputValue('commentaireInput') }"`);
+		}
 
 		if ( donneeRecolte.length === 5 )
 		{

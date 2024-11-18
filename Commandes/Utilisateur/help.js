@@ -9,23 +9,27 @@ module.exports =
 		.addStringOption(option => option
 			.setName('commande')
 			.setDescription('Donne des informations sur la commande entré')
-				.setAutocomplete(false)
+				.setAutocomplete(true)
 				.setRequired(false)
 			),
 
-	// async autocomplete(interaction) {
-	// 	const focusedOption = interaction.options.getFocused(true);
-	// 	let choices;
+	// Met les propositions de commande
+	async autocomplete(interaction, client) {
+		const focusedOption = interaction.options.getFocused(true);
+		let choices = [];
 
-	// 	if (focusedOption.name === 'commande') {
-	// 		choices = ['Popular Topics: Threads', 'Sharding: Getting started', 'Library: Voice Connections', 'Interactions: Replying to slash commands', 'Popular Topics: Embed preview'];
-	// 	}
+		if (focusedOption.name === 'commande') 
+		{
+			client.commands.forEach(commande => {
+				choices.push(commande.data.name);
+			});
+		}
 
-	// 	const filtered = choices.filter(choice => choice.startsWith(focusedOption.value));
-	// 	await interaction.respond(
-	// 		filtered.map(choice => ({ name: choice, value: choice })),
-	// 	);
-	// },
+		const filtered = choices.filter(choice => choice.startsWith(focusedOption.value));
+		await interaction.respond(
+			filtered.map(choice => ({ name: choice, value: choice })),
+		);
+	},
 
 
 
