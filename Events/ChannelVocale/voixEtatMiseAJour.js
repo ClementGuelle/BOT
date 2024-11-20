@@ -41,7 +41,7 @@ module.exports = {
 
 				`Si tu as envie de nous donner ton avis sur cette partie pour nous aider à nous améliorer, n'hésite pas à taper la commande : **"/avis"**\n\n` + 
 
-				`Si tu as des questions ou si tu veux signaler quelque chose (à propos du jeu, d'un joueur ou d'un rôle), contacte les maires de la ville dans le salon FAQ.`)
+				`Si tu as des questions ou si tu veux signaler quelque chose (à propos du jeu, d'un joueur ou d'un rôle), contacte les maires de la ville dans le salon <#${process.env.FAQ_CHANNEL}>.`)
 				.setFooter({ text: "Merci d'avoir participé !" });
 
 

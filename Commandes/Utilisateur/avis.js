@@ -390,38 +390,10 @@ module.exports =
 			return
 		}
 
-
-		// Commentaire de l'utilisateur supplémentaire
-
-		// Création modal
-		const modal = new ModalBuilder()
-			.setCustomId('commentModal')
-			.setTitle('Laissez votre commentaire');
-
-		// Création zone texte
-		const commentaire = new TextInputBuilder()
-			.setCustomId('commentaire')
-			.setLabel("Votre commentaire (max 500 caractères)")
-			.setStyle(TextInputStyle.Paragraph)
-			.setMaxLength(500)
-			.setPlaceholder('Entrez votre commentaire ici...')
-			.setRequired(true);
-
-		// Ajout de la zone de texte au modal
-		const action = new ActionRowBuilder().addComponents(commentaire);
-		modal.addComponents(action);
-
-		await interaction.showModal(modal);
-
-		if (interaction.isModalSubmit() && interaction.customId === 'commentModal') 
-		{
-			await interaction.followUp(`Merci pour votre commentaire :\n"${interaction.fields.getTextInputValue('commentaireInput') }"`);
-		}
-
 		if ( donneeRecolte.length === 5 )
 		{
 			const channelUtilisateur = await client.users.fetch(idUtilisateur)
-			const channelAvis        = await client.channels.cache.get(process.env.AVIS_CHANNEL)
+			const channelAvis        = await client.channels.cache.get(process.env.BOT_CHANNEL)
 			const embed              = new EmbedBuilder()
 
 			embed.setAuthor({

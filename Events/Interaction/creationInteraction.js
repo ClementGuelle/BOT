@@ -6,20 +6,25 @@ module.exports = {
 	// Créer un intéraction si c'est une commande 
 	execute(interaction, client)
 	{
-		const command = client.commands.get(interaction.commandName);
-		
-		if (!command)
-		{
-			interaction.reply({ content: "Commandement désuet" });
-		}
-
 		if (interaction.isChatInputCommand())
 		{
+			const command = client.commands.get(interaction.commandName);
+
+			if (!command)
+				interaction.reply({ content: "Commandement désuet" });
+
 			command.execute(interaction, client);
 		}
 		else if (interaction.isAutocomplete())
 		{
+			const command = client.commands.get(interaction.commandName);
+
+			if (!command)
+				interaction.reply({ content: "Commandement désuet" });
+
 			command.autocomplete(interaction, client);
 		}
+		else
+			return;
 	},
 };
