@@ -237,16 +237,16 @@ async function listeDeroulante(customId, qst, descriptionQst)
 async function lectureReponse(interaction, donneeRecolte, customId)
 {
 	return new Promise((resolve) => {
-
+		
 		const filter = i => i.user.id === interaction.user.id && i.isStringSelectMenu() && i.customId === customId || customId === 'menu_role' ;
 		const collector = interaction.channel.createMessageComponentCollector({ filter, time: 60000 });
 
 		collector.on('collect', async (i) => {
-			if (i.isStringSelectMenu()) {
+				if (i.isStringSelectMenu()) {
 				donneeRecolte.push(i.values[0]);
 				await i.deferUpdate()
 				collector.stop();
-			}
+}
 		});
 
 		collector.on('end', (collected, reason) => {
@@ -257,7 +257,7 @@ async function lectureReponse(interaction, donneeRecolte, customId)
 
 			resolve(true);
 		});
-
+	
 	});
 }
 
@@ -341,8 +341,8 @@ module.exports =
 
 		// Role joueur
 		const roleMenu = await listeDeroulante('menu_role', 'Quel était ton rôle ?', 'Choisis le rôle que tu as été.');
-		await interaction.reply(roleMenu);
-		if(!(await lectureReponse(interaction, donneeRecolte, 'menu_role')))
+					await interaction.reply(roleMenu);
+				if(!(await lectureReponse(interaction, donneeRecolte, 'menu_role')))
 		{
 			envoieMessageErreur(client, 'Temps limite pour une réponse atteint.', idUtilisateur)
 			return 
@@ -352,7 +352,7 @@ module.exports =
 
 		// note sur le role
 		const noteRole = await listeDeroulante('avis_role', 'Comment as-tu trouvé ton rôle ?', 'Partage ton ressenti sur ce rôle');
-		await interaction.followUp(noteRole)
+		await interaction.editReply(noteRole)
 		if (!(await lectureReponse(interaction, donneeRecolte, 'avis_role')))
 		{
 			envoieMessageErreur(client, 'Temps limite pour une réponse atteint.', idUtilisateur)
@@ -362,7 +362,7 @@ module.exports =
 
 		// note sur l'équilibrage de la partie
 		const duree = await listeDeroulante('avis_duree', 'Comment as-tu trouvé la durée de la partie ?', 'Partage ton ressenti sur la durée de la partie');
-		await interaction.followUp(duree)
+		await interaction.editReply(duree)
 		if (!(await lectureReponse(interaction, donneeRecolte, 'avis_duree')))
 		{
 			envoieMessageErreur(client, 'Temps limite pour une réponse atteint.', idUtilisateur)
@@ -372,7 +372,7 @@ module.exports =
 		
 		// note sur l'équilibrage de la partie
 		const equilibrage = await listeDeroulante('avis_equilibrage', 'Comment as-tu trouvé l\'équilibre des camps ?', 'Partage ton ressenti sur l\'équilibrage des camps');
-		await interaction.followUp(equilibrage)
+		await interaction.editReply(equilibrage)
 		if (!(await lectureReponse(interaction, donneeRecolte, 'avis_equilibrage')))
 		{
 			envoieMessageErreur(client, 'Temps limite pour une réponse atteint.', idUtilisateur)
@@ -383,7 +383,7 @@ module.exports =
 
 		// note sur l'ambiance
 		const ambiance = await listeDeroulante('avis_ambiance', 'Comment as-tu trouvé l\'ambiance de la partie ?', 'Partage ton ressenti sur l\'ambiance');
-		await interaction.followUp(ambiance)
+		await interaction.editReply(ambiance)
 		if (!(await lectureReponse(interaction, donneeRecolte, 'avis_ambiance')))
 		{
 			envoieMessageErreur(client, 'Temps limite pour une réponse atteint.', idUtilisateur)
