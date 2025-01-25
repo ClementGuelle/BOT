@@ -393,7 +393,7 @@ module.exports =
 		if ( donneeRecolte.length === 5 )
 		{
 			const channelUtilisateur = await client.users.fetch(idUtilisateur)
-			const channelAvis        = await client.channels.cache.get(process.env.BOT_CHANNEL)
+            const channelAvis = await client.channels.cache.get(process.env.AVIS_CHANNEL)
 			const embed              = new EmbedBuilder()
 
 			embed.setAuthor({

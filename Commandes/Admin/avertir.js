@@ -1,92 +1,117 @@
-const { EmbedBuilder, SlashCommandBuilder } = require("discord.js");
+const { EmbedBuilder, SlashCommandBuilder, discordSort } = require("discord.js");
 
-module.exports =
-{
+function getListeRoleUtilisateur(interaction){
+    return getMember(interaction).roles.cache
+}
 
-	data: new SlashCommandBuilder()
-		.setName('avertir')
-		.setDescription('Envoie un message à la personne qui doit être avertie')
-		.addStringOption(option => option
-			.setName('utilisateur')
-			.setDescription('Le nom de l\'utilisateur à avertir')
-			//.setAutocomplete(false)
-			.setRequired(true)
-		),
+function getUtilisateur(interaction){
+    return interaction.user
+}
 
-	// Met les propositions de pseudo
-	/*async autocomplete(interaction, client) {
-		const focusedOption = interaction.options.getFocused(true);
-		let choices = [];
+function getMember(interaction){
+    return interaction.guild.members.cache.get(getUtilisateur(interaction).id)
+}
 
-		if (focusedOption.name === 'utilisateur') {
+async function getMembers(interaction){
+    return await interaction.guild.members.fetch();
+}
 
-			// TODO faire en sorte d'avoir la liste de toute les personnes sur le serv
-			console.log(client)
-			console.log("\n\n\n\n")
-			console.log(interaction)
+async function getChanneUtilisateur(client, idUtilisateur){
+    return await client.users.fetch(idUtilisateur)
+}
 
-			client.commands.forEach(commande => {
-				choices.push(commande.data.name);
-			});
-		}
+async function getUtilisateurSignale(nomUtilisateur, interaction){
+    
+    const membresServeur           = await getMembers(interaction)
+    let   memberUtilisateurSignale = null
+    
+    membresServeur.forEach(member => {
+        if (member.user.username === nomUtilisateur) {
+            memberUtilisateurSignale = member
+        }
+    })
 
-		const filtered = choices.filter(choice => choice.startsWith(focusedOption.value));
-		await interaction.respond(
-			filtered.map(choice => ({ name: choice, value: choice })),
-		);
-	},*/
+    return memberUtilisateurSignale
+
+}
+
+function creationEmbed(client){
+
+    const embed = new EmbedBuilder()
+
+    return embed.setAuthor({
+        name: client.user.username,
+        iconURL: client.user.displayAvatarURL(),
+    })
+        .setColor("#ff2142")
+}
+
+module.exports = {
+
+    data: new SlashCommandBuilder()
+        .setName('avertir')
+        .setDescription('Envoie un message à la personne qui doit être avertie')
+        .addStringOption(option => option
+            .setName('utilisateur')
+            .setDescription('Le nom de l\'utilisateur à avertir')
+            .setRequired(true)
+        )
+        .addStringOption(option => option
+            .setName('raison')
+            .setDescription('La raison de l\'avertissement')
+            .setRequired(true)
+        ),
 
 
+async execute(interaction, client) {
 
-	async execute(interaction, client) {
-		// N'exécute la commmande que si l'utilisateur à le rôle d'admin sur le serv
-		// TODO changé et faire en sorte que ce soit que l'admin
-		// TODO faire en sorte de pas pouvoir faire la commande en prv
-		if (interaction.channel.type !== 1) {
-			interaction.reply({ content: 'Tu ne peux exécuter cette commande qu\'en DM.', ephemeral: true })
-			return;
-		}
+        // N'exécute la commmande que si l'utilisateur à le rôle d'admin sur le serv
+        if (interaction.channel.type === 1) {
+            interaction.reply({ content: 'Tu ne peux exécuter cette commande en DM.', ephemeral: true })
+            return;
+        }
 
-		const embed = new EmbedBuilder()
+        getListeRoleUtilisateur(interaction).forEach(roleUtilisateur => {
+            if (roleUtilisateur === process.env.ROLE_ADMIN) {
+                interaction.reply({ content: 'Tu n\'as pas la permission de réaliser cette commande.', ephemeral: true })
+                return;
+            }
+        })
 
-		// Vérifie si un paramètre est passé ou non
-		if (interaction.options.getString('commande') != null) {
+        let embed
 
-			// Vérifie si la commande en paramètre existe
-			if (client.commands.get(interaction.options.getString('commande'))) {
-				embed.setAuthor({
-					name: client.user.username,
-					iconURL: client.user.displayAvatarURL(),
-				})
-					.setColor("#21ff81")
-					.addFields(
-						{ name: `\n**${interaction.options.getString('commande').toUpperCase()}**`, value: `Description : **${client.commands.get(interaction.options.getString('commande')).data.description}**` })
-			}
-			else {
-				embed.setAuthor({
-					name: client.user.username,
-					iconURL: client.user.displayAvatarURL(),
-				})
-					.setColor("#ff2142")
-					.setDescription(`\nLa commande **${interaction.options.getString('commande')}** n'existe pas !`)
-			}
-		}
-		else {
-			// Si aucun paramètre n'est passé alors cela affiche toute les commandes avec leur description
-			embed.setAuthor({
-				name: client.user.username,
-				iconURL: client.user.displayAvatarURL(),
-			})
-				.setColor("#21ff81")
+        const texteRaison           = interaction.options.getString('raison')
+        const nomUtilisateurSignale = interaction.options.getString('utilisateur')
 
-			client.commands.forEach(commande => {
-				embed.addFields(
-					{ name: `\n**${commande.data.name.toUpperCase()}**`, value: `Description : **${commande.data.description}**\n` })
-			});
+        // Si le client n'existe pas
+        if (await getUtilisateurSignale(nomUtilisateurSignale, interaction, client) === null ) {
+            embed = creationEmbed(client)
+                .addFields({name: `Erreur`, value: `L'utilisateur **${nomUtilisateurSignale}** n'est pas dans le serveur !!`})
+                .addFields({name: `Raison écrite`, value: `Le raison écrite était : *${texteRaison}*`})
+        }
+        else {
 
-		}
+            const idUtilisateurSignale      = (await getUtilisateurSignale(nomUtilisateurSignale, interaction, client)).user.id
+            const channelUtilisateurSignale =  await getChanneUtilisateur(client, idUtilisateurSignale)
 
-		interaction.reply({ embeds: [embed] });
-	}
+            embed = creationEmbed(client)
+                .addFields({ name: `Avertissement`, value: `Ceci est un message d'avertissement de la part des administrateurs du serveur LG-UHC pour la raison :\n **${texteRaison}**` })
+                .setFooter({ text: "Attention à ton comportement !" })
+
+
+            try {
+                await channelUtilisateurSignale.send({ embeds: [embed] })
+            } catch (error) {
+                console.error(`Impossible d'envoyer le message à ${nomUtilisateurSignale} en privé sur l'événement "avertir" `)
+                embed = creationEmbed(client)
+                    .addFields({ name: `Erreur`, value: `L'utilisateur **${nomUtilisateurSignale}** ne reçoit pas les messages du Bot, il l'a bloqué le saligo` })
+                    .addFields({ name: `Raison écrite`, value: `Le raison écrite était : *${texteRaison}*` })
+            }
+
+        }
+
+        interaction.reply({ embeds: [embed] })
+
+    }
 
 }
